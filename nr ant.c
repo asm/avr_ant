@@ -35,18 +35,33 @@ void callback_broadcast_recv(uint8_t *buf, uint8_t len)
 {
   uint8_t data[6];
 
-  printf("d: ");
-  for (int i = 6; i < len; i++) {
-    printf("%x ", buf[i]);
+  /* Check if this is a NR stats message, if so, print it.
+  /  buf[7] will hold the NR stat id:
+     0: Apdex
+     1: Error Rate
+     2: Throughput
+     3: Response Time
+     4: DB
+     5: CPU
+     6: Memory
+     buf[8] and buf[9] hold the value (little endian)
+  */
+  if (buf[6] == 0x2a) {
+    printf("d: ");
+    for (int i = 6; i < len; i++) {
+      printf("%x ", buf[i]);
+    }
+    printf("\n");
   }
-  printf("\n");
 
-  data[0] = 0xbb;
-  data[1] = 0xbb;
-  data[2] = 0xbb;
-  data[3] = 0xbb;
-  data[4] = 0xbb;
-  data[5] = 0xbb;
+  // At this point, we can transmit our data.
+  // The protocol allows for 3 16 bit (little endian) data points.
+  data[0] = 0x2a;   // Data 1
+  data[1] = 0x00;
+  data[2] = 0x2b;   // Data 2
+  data[3] = 0x00;
+  data[4] = 0x2c;   // Data 3
+  data[5] = 0x00;
 
   ant_send_broadcast_data(1, data);
 }
