@@ -119,7 +119,7 @@
     <Compile Include="ant.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="nr ant.c">
+    <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ring_buffer.c">
