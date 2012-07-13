@@ -34,6 +34,7 @@ FILE suart_stream = FDEV_SETUP_STREAM( my_stdio_putchar, NULL, _FDEV_SETUP_WRITE
 void callback_broadcast_recv(uint8_t *buf, uint8_t len)
 {
   uint8_t data[6];
+  uint8_t i;
 
   /* Check if this is a NR stats message, if so, print it.
   /  buf[7] will hold the NR stat id:
@@ -48,7 +49,7 @@ void callback_broadcast_recv(uint8_t *buf, uint8_t len)
   */
   if (buf[6] == 0x2a) {
     printf("d: ");
-    for (int i = 6; i < len; i++) {
+    for (i = 6; i < len; i++) {
       printf("%x ", buf[i]);
     }
     printf("\n");
@@ -66,7 +67,7 @@ void callback_broadcast_recv(uint8_t *buf, uint8_t len)
   ant_send_broadcast_data(1, data);
 }
 
-void main(void) {
+int main(void) {
   ant_configuration ant_config;
 
   ioinit();

@@ -48,7 +48,6 @@ static ant_configuration _config;
 //=======================
 static void ant_config(void);
 static void dispatch_msg(uint8_t len);
-static void send_tx(void);
 static void reset (void);
 static void get_capabilities(void);
 static void assign_channel_id(uint8_t type);
@@ -71,7 +70,7 @@ ISR(USART_RX_vect) {
 
 void ant_handle_msg(void)
 {
-  uint8_t msg_n;
+  uint8_t msg_n = 0;;
   uint8_t in_msg = FALSE;
   
   pop_value value;
@@ -165,8 +164,10 @@ void dispatch_msg(uint8_t len)
 
 void print_msg(uint8_t len)
 {
+  uint8_t i;
+
   printf("m: %x - ", rx_buf[2]);
-  for (int i = 3; i < len; i++) {
+  for (i = 3; i < len; i++) {
     printf("%x ", rx_buf[i]);
   }
   printf("\n");
@@ -418,7 +419,9 @@ void open_channel(void)
 
 void send_to_ant(uint8_t* buffer, uint8_t len)
 {
-  for(uint8_t i = 0; i < len; i++) {
+  uint8_t i;
+
+  for(i = 0; i < len; i++) {
     uart_putchar(buffer[i]);
   }
 }
