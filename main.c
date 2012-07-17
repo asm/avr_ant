@@ -35,6 +35,7 @@ void callback_broadcast_recv(uint8_t *buf, uint8_t len)
 {
   uint8_t data[6];
   uint8_t i;
+  uint8_t adc_val;
 
   /* Check if this is a NR stats message, if so, print it.
   /  buf[7] will hold the NR stat id:
@@ -55,13 +56,19 @@ void callback_broadcast_recv(uint8_t *buf, uint8_t len)
     printf("\n");
   }
 
+  // Read from ADC0 and send it as data1
+  ADCSRA |= (1 << ADSC);            // start ADC conversion
+  while (ADCSRA & (1 << ADSC)) {;}; // wait for the result to be available
+  adc_val = ADCH;
+  printf("val: %i\n", adc_val);
+
   // At this point, we can transmit our data.
   // The protocol allows for 3 16 bit (little endian) data points.
-  data[0] = 0x2a;   // Data 1
+  data[0] = adc_val;   // Data 1
   data[1] = 0x00;
-  data[2] = 0x2b;   // Data 2
+  data[2] = 0x00;   // Data 2
   data[3] = 0x00;
-  data[4] = 0x2c;   // Data 3
+  data[4] = 0x00;   // Data 3
   data[5] = 0x00;
 
   ant_send_broadcast_data(1, data);
@@ -69,11 +76,22 @@ void callback_broadcast_recv(uint8_t *buf, uint8_t len)
 
 int main(void) {
   ant_configuration ant_config;
+  uint8_t adc_val;
 
   ioinit();
     
   printf("\r\nBooting...\n");
-  
+
+  // Initialize ADC
+  ADCSRA = (1 << ADPS2);      // Set ADC prescalar to 128 - 125KHz sample rate @ 16MHz 
+  ADCSRB = 0;
+
+  ADMUX = 0;                  // channel 0 and 1
+  ADMUX |= (1 << ADLAR);      // Left adjust ADC result to allow easy 8 bit reading 
+  ADMUX |= (1 << REFS0);      // Set ADC reference to AVCC
+
+  ADCSRA |= (1 << ADEN);      // Enable ADC 
+
   // Radio settings
   ant_config.address   = 1;
   ant_config.master    = FALSE;
@@ -95,7 +113,6 @@ int main(void) {
 void ioinit (void) {
   //1 = output, 0 = input
   DDRB = 0b11101111; //PB4 = MISO
-  DDRC = 0b11111111; //all outputs
   DDRD = 0b11111110; //PORTD (RX on PD0)
 
   //USART Baud rate: 4800
