@@ -95,7 +95,6 @@ int main(void) {
 void ioinit (void) {
   //1 = output, 0 = input
   DDRB = 0b11101111; //PB4 = MISO
-  DDRC = 0b11111111; //all outputs
   DDRD = 0b11111110; //PORTD (RX on PD0)
 
   //USART Baud rate: 4800
